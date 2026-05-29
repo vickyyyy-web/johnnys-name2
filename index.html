@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>杰尼斯二选一 · 心动男嘉宾</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(145deg, #fcf5ea 0%, #f2e3d4 100%);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            padding: 20px 16px 40px;
+            min-height: 100vh;
+            color: #2c1b12;
+        }
+
+        .app-container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #b6431f, #732d12);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            font-weight: 800;
+        }
+
+        .sub {
+            color: #9b6a4b;
+            font-weight: 500;
+            margin-top: 8px;
+            font-size: 0.9rem;
+            background: rgba(255,235,215,0.8);
+            display: inline-block;
+            padding: 5px 18px;
+            border-radius: 40px;
+            backdrop-filter: blur(2px);
+        }
+
+        .progress-area {
+            background: #fff7ef;
+            border-radius: 60px;
+            padding: 6px 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+            border: 1px solid #ffe2c4;
+        }
+
+        .vote-count {
+            background: #5e3a28;
+            padding: 6px 18px;
+            border-radius: 40px;
+            color: #fff2e4;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .progress-bar-wrapper {
+            flex: 1;
+            min-width: 140px;
+            background: #e9d9cb;
+            border-radius: 30px;
+            height: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #da6e42, #b33f1a);
+            border-radius: 30px;
+            transition: width 0.25s ease;
+        }
+
+        .btn-view-top10 {
+            background: #5e3a28;
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 7px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn-view-top10:active {
+            transform: scale(0.96);
+        }
+
+        .vs-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            flex: 1;
+            min-width: 260px;
+            background: rgba(255, 250, 240, 0.96);
+            backdrop-filter: blur(4px);
+            border-radius: 56px;
+            padding: 24px 16px 28px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 24px 32px -16px rgba(0,0,0,0.25);
+            border: 1px solid rgba(230, 180, 130, 0.6);
+            text-align: center;
+        }
+
+        .card:active {
+            transform: scale(0.97);
+            background: #fff6ea;
+        }
+
+        .card-img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 24px;
+            margin: 0 auto 18px;
+            display: block;
+            box-shadow: 0 12px 20px rgba(0,0,0,0.2);
+            border: 4px solid #ffce9e;
+            background: #f5e2ce;
+        }
+
+        .card-name {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            margin-bottom: 6px;
+            color: #422818;
+        }
+
+        .card-group {
+            font-size: 0.75rem;
+            background: #f2e0cf;
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 50px;
+            font-weight: 600;
+            color: #9b5a38;
+            margin-top: 6px;
+        }
+
+        .card-score {
+            font-size: 0.85rem;
+            background: #eedbcb;
+            display: inline-block;
+            padding: 4px 16px;
+            border-radius: 30px;
+            font-weight: 600;
+            color: #78482c;
+            margin-top: 8px;
+        }
+
+        .vs-badge {
+            font-size: 2rem;
+            font-weight: 800;
+            background: #dc8e6e30;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 100px;
+            backdrop-filter: blur(4px);
+            font-family: monospace;
+            color: #bc5a34;
+        }
+
+        .extra-actions {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+        .extra-btn {
+            background: #fff0e4;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 80px;
+            font-weight: 800;
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+            color: #5e3a28;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .extra-btn:active {
+            transform: scale(0.96);
+        }
+
+        .extra-btn.like {
+            background: #ffd9c4;
+            color: #b33f1a;
+            border: 1px solid #ffbe8c;
+        }
+
+        .extra-btn.dislike {
+            background: #e6d5c8;
+            color: #6b4a35;
+            border: 1px solid #d4bbaa;
+        }
+
+        .result-panel {
+            background: #2e241fdb;
+            backdrop-filter: blur(12px);
+            border-radius: 48px;
+            padding: 24px 20px;
+            margin-top: 24px;
+            transition: all 0.3s;
+            border: 1px solid #ffddb0;
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 12px;
+            color: #fff1e2;
+        }
+
+        .favorite-group {
+            text-align: center;
+            background: #ffdec2aa;
+            border-radius: 60px;
+            padding: 10px 20px;
+            margin-bottom: 24px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #5e2c1a;
+            backdrop-filter: blur(4px);
+        }
+
+        .btn-reset {
+            background: #ffdec2;
+            border: none;
+            padding: 8px 22px;
+            border-radius: 40px;
+            font-weight: 700;
+            color: #402718;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.2s;
+        }
+
+        .top10-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+            gap: 18px;
+        }
+
+        .top10-item {
+            background: #fffaf3;
+            border-radius: 32px;
+            padding: 12px 6px;
+            text-align: center;
+            color: #2c1b12;
+            transition: 0.1s linear;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .top10-rank {
+            font-size: 1.5rem;
+            font-weight: 800;
+            display: inline-block;
+            width: 38px;
+            height: 38px;
+            line-height: 38px;
+            background: #f2cfaa;
+            border-radius: 40px;
+            margin-bottom: 8px;
+            color: #683c22;
+        }
+
+        .top10-img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 16px;
+            margin: 6px auto;
+            border: 3px solid #d49462;
+            background: #ebd5be;
+        }
+
+        .top10-name {
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-top: 8px;
+            white-space: nowrap;
+            overflow-x: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .top10-group {
+            font-size: 0.6rem;
+            color: #bd7f58;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        .top10-elo {
+            font-size: 0.65rem;
+            color: #9b6a4b;
+            font-weight: 500;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.7rem;
+            color: #ab886b;
+        }
+
+        @media (max-width: 700px) {
+            .card-name {
+                font-size: 1.2rem;
+            }
+            .card-img {
+                width: 110px;
+                height: 110px;
+                border-radius: 18px;
+            }
+            .vs-badge {
+                width: 48px;
+                height: 48px;
+                font-size: 1.5rem;
+            }
+            .top10-grid {
+                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+                gap: 12px;
+            }
+            .extra-btn {
+                padding: 12px 28px;
+                font-size: 1rem;
+                gap: 8px;
+            }
+            .favorite-group {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="header">
+        <h1>💘 杰尼斯二选一 · 请选择你的心动男嘉宾 💘</h1>
+        <div class="sub">100次自动揭晓TOP10与预测最爱团+可提前交卷版</div>
+    </div>
+
+    <div class="progress-area">
+        <div class="vote-count" id="voteCounter">0 次抉择</div>
+        <div class="progress-bar-wrapper">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <button class="btn-view-top10" id="viewTop10Btn">🏆 提前查看TOP10 & 最爱团</button>
+    </div>
+
+    <div class="vs-container" id="vsContainer">
+        <div class="card" id="leftCard">
+            <img class="card-img" id="leftImg" src="" alt="艺人">
+            <div class="card-name" id="leftName">--</div>
+            <div class="card-group" id="leftGroup"></div>
+            <div class="card-score" id="leftElo">战力 --</div>
+        </div>
+        <div class="vs-badge">VS</div>
+        <div class="card" id="rightCard">
+            <img class="card-img" id="rightImg" src="" alt="艺人">
+            <div class="card-name" id="rightName">--</div>
+            <div class="card-group" id="rightGroup"></div>
+            <div class="card-score" id="rightElo">战力 --</div>
+        </div>
+    </div>
+
+    <div class="extra-actions">
+        <button class="extra-btn like" id="bothLikeBtn">❤️ 两个都喜欢</button>
+        <button class="extra-btn dislike" id="bothDislikeBtn">💔 两个都不在我点上</button>
+    </div>
+
+    <div id="resultPanel" class="result-panel" style="display: none;">
+        <div class="result-title">
+            <span>✨ 你的心动 TOP10 ✨</span>
+            <button class="btn-reset" id="resetGameBtn">🔄 重新开始</button>
+        </div>
+        <div class="favorite-group" id="favoriteGroupDisplay">🏆 推算最爱团体：--</div>
+        <div id="top10List" class="top10-grid"></div>
+    </div>
+    <footer>💡 都喜欢 → 双方各获得对虚拟对手的胜利加分 | 都不喜欢 → 分数不变 | 100次抉择后自动揭晓结果</footer>
+</div>
+
+<script>
+    // ======================= 全Starto社艺人数据库 (删除福本大晴) =======================
+    // 总人数 85 位 (Aぇ! group 现为4人)
+    
+    const ARTISTS_LIST = [
+        // Hey! Say! JUMP (7人)
+        { id: 1, name: "山田凉介", group: "Hey! Say! JUMP", photo: "image/山田凉介.png" },
+        { id: 2, name: "知念侑李", group: "Hey! Say! JUMP", photo: "image/知念侑李.png" },
+        { id: 3, name: "薮宏太", group: "Hey! Say! JUMP", photo: "image/数宏太.png" },
+        { id: 4, name: "八乙女光", group: "Hey! Say! JUMP", photo: "image/八乙女光.png" },
+        { id: 5, name: "伊野尾慧", group: "Hey! Say! JUMP", photo: "image/伊野尾慧.png" },
+        { id: 6, name: "高木雄也", group: "Hey! Say! JUMP", photo: "image/高木雄也.png" },
+        { id: 7, name: "有冈大贵", group: "Hey! Say! JUMP", photo: "image/有冈大贵.png" },
+        
+        // Snow Man (9人)
+        { id: 10, name: "岩本照", group: "Snow Man", photo: "image/岩本照.png" },
+        { id: 11, name: "深泽辰哉", group: "Snow Man", photo: "image/深泽辰哉.png" },
+        { id: 12, name: "渡边翔太", group: "Snow Man", photo: "image/渡边翔太.png" },
+        { id: 13, name: "宫馆凉太", group: "Snow Man", photo: "image/宫馆凉太.png" },
+        { id: 14, name: "佐久间大介", group: "Snow Man", photo: "image/佐久间大介.png" },
+        { id: 15, name: "向井康二", group: "Snow Man", photo: "image/向井康二.png" },
+        { id: 16, name: "阿部亮平", group: "Snow Man", photo: "image/阿部亮平.png" },
+        { id: 17, name: "目黑莲", group: "Snow Man", photo: "image/目黑莲.png" },
+        { id: 18, name: "Raul", group: "Snow Man", photo: "image/raul.png" },
+        
+        // SixTONES (6人)
+        { id: 19, name: "京本大我", group: "SixTONES", photo: "image/京本大我.jpg" },
+        { id: 20, name: "松村北斗", group: "SixTONES", photo: "image/松村北斗.jpg" },
+        { id: 21, name: "田中树", group: "SixTONES", photo: "image/田中树.jpg" },
+        { id: 22, name: "高地优吾", group: "SixTONES", photo: "image/高地优吾.jpg" },
+        { id: 23, name: "Jesse", group: "SixTONES", photo: "image/杰西.jpg" },
+        { id: 24, name: "森本慎太郎", group: "SixTONES", photo: "image/森本慎太郎.jpg" },
+        
+        // King & Prince (2人)
+        { id: 25, name: "永濑廉", group: "King & Prince", photo: "image/永濑廉.jpg" },
+        { id: 26, name: "高桥海人", group: "King & Prince", photo: "image/高桥海人.jpg" },
+        
+        // NEWS (3人)
+        { id: 30, name: "小山庆一郎", group: "NEWS", photo: "image/小山庆一郎.jpg" },
+        { id: 31, name: "加藤成亮", group: "NEWS", photo: "image/加藤成亮.jpg" },
+        { id: 32, name: "增田贵久", group: "NEWS", photo: "image/增田贵久.jpg" },
+        
+        // KinKi Kids (2人)
+        { id: 33, name: "堂本光一", group: "KinKi Kids", photo: "image/堂本光一.png" },
+        { id: 34, name: "堂本刚", group: "KinKi Kids", photo: "image/堂本刚.png" },
+        
+        // Kis-My-Ft2 (6人)
+        { id: 35, name: "藤谷太辅", group: "Kis-My-Ft2", photo: "image/藤谷太辅.jpg" },
+        { id: 36, name: "玉森裕太", group: "Kis-My-Ft2", photo: "image/玉森裕太.jpg" },
+        { id: 38, name: "千贺健永", group: "Kis-My-Ft2", photo: "image/千贺健永.jpg" },
+        { id: 39, name: "宫田俊哉", group: "Kis-My-Ft2", photo: "image/宫田俊哉.jpg" },
+        { id: 40, name: "横尾涉", group: "Kis-My-Ft2", photo: "image/横尾涉.jpg" },
+        { id: 41, name: "二阶堂高嗣", group: "Kis-My-Ft2", photo: "image/二阶堂高嗣.jpg" },
+        
+        // Travis Japan (7人)
+        { id: 42, name: "宫近海斗", group: "Travis Japan", photo: "image/宫近海斗.jpg" },
+        { id: 43, name: "中村海人", group: "Travis Japan", photo: "image/中村海人.jpg" },
+        { id: 44, name: "七五三挂龙也", group: "Travis Japan", photo: "image/七五三挂龙也.jpg" },
+        { id: 45, name: "吉泽闲也", group: "Travis Japan", photo: "image/吉泽闲也.jpg" },
+        { id: 46, name: "松田元太", group: "Travis Japan", photo: "image/松田元太.jpg" },
+        { id: 47, name: "川岛如惠留", group: "Travis Japan", photo: "image/川岛如惠留.jpg" },
+        
+        // なにわ男子 (7人)
+        { id: 48, name: "道枝骏佑", group: "なにわ男子", photo: "image/道枝骏佑.jpg" },
+        { id: 49, name: "西畑大吾", group: "なにわ男子", photo: "image/西畑大吾.jpg" },
+        { id: 50, name: "大西流星", group: "なにわ男子", photo: "image/大西流星.jpg" },
+        { id: 51, name: "高桥恭平", group: "なにわ男子", photo: "image/高桥恭平.jpg" },
+        { id: 52, name: "长尾谦杜", group: "なにわ男子", photo: "image/长尾谦杜.jpg" },
+        { id: 53, name: "藤原丈一郎", group: "なにわ男子", photo: "image/藤原丈一郎.jpg" },
+        { id: 54, name: "大桥和也", group: "なにわ男子", photo: "image/大桥和也.jpg" },
+        
+        // 岚 (5人)
+        { id: 55, name: "大野智", group: "岚", photo: "image/大野智.jpg" },
+        { id: 56, name: "樱井翔", group: "岚", photo: "image/樱井翔.jpg" },
+        { id: 57, name: "相叶雅纪", group: "岚", photo: "image/相叶雅纪.jpg" },
+        { id: 58, name: "二宫和也", group: "岚", photo: "image/二宫和也.jpg" },
+        { id: 59, name: "松本润", group: "岚", photo: "image/松本润.jpg" },
+        
+        // KAT-TUN (3人)
+        { id: 60, name: "龟梨和也", group: "KAT-TUN", photo: "image/龟梨和也.jpg" },
+        { id: 61, name: "上田龙也", group: "KAT-TUN", photo: "image/上田龙也.jpg" },
+        { id: 62, name: "中丸雄一", group: "KAT-TUN", photo: "image/中丸雄一.jpg" },
+        
+        // 20th Century (3人)
+        { id: 63, name: "井之原快彦", group: "20th Century", photo: "image/井之原快彦.jpg" },
+        { id: 64, name: "长野博", group: "20th Century", photo: "image/长野博.jpg" },
+        { id: 65, name: "坂本昌行", group: "20th Century", photo: "image/坂本昌行.jpg" },
+        
+        // WEST. (7人)
+        { id: 68, name: "重冈大毅", group: "WEST.", photo: "image/重冈大毅.jpg" },
+        { id: 69, name: "桐山照史", group: "WEST.", photo: "image/桐山照史.jpg" },
+        { id: 70, name: "中间淳太", group: "WEST.", photo: "image/中间淳太.jpg" },
+        { id: 71, name: "滨田崇裕", group: "WEST.", photo: "image/滨田崇裕.jpg" },
+        { id: 72, name: "神山智洋", group: "WEST.", photo: "image/神山智洋.jpg" },
+        { id: 73, name: "藤井流星", group: "WEST.", photo: "image/藤井流星.jpg" },
+        { id: 74, name: "小泷望", group: "WEST.", photo: "image/小泷望.jpg" },
+        
+        // timelesz (8人)
+        { id: 75, name: "菊池风磨", group: "timelesz", photo: "image/菊池风磨.jpg" },
+        { id: 76, name: "佐藤胜利", group: "timelesz", photo: "image/佐藤胜利.jpg" },
+        { id: 77, name: "松岛聪", group: "timelesz", photo: "image/松岛聪.jpg" },
+        { id: 78, name: "原嘉孝", group: "timelesz", photo: "image/原嘉孝.jpg" },
+        { id: 79, name: "桥本将生", group: "timelesz", photo: "image/桥本将生.jpg" },
+        { id: 80, name: "猪俣周杜", group: "timelesz", photo: "image/猪俣周杜.jpg" },
+        { id: 81, name: "篠塚大辉", group: "timelesz", photo: "image/大辉.jpg" },
+        { id: 82, name: "寺西拓人", group: "timelesz", photo: "image/寺西拓人.jpg" },
+        
+        // 中岛健人 solo
+        { id: 83, name: "中岛健人", group: "Solo / 元Sexy Zone", photo: "image/中岛健人.jpg" },
+        
+        // Aぇ! group (删除了福本大晴, 剩余4人)
+        { id: 84, name: "正门良规", group: "Aぇ! group", photo: "image/正门良规.jpg" },
+        { id: 85, name: "末泽诚也", group: "Aぇ! group", photo: "image/末泽诚也.jpg" },
+        { id: 86, name: "小岛健", group: "Aぇ! group", photo: "image/小岛健.jpg" },
+        { id: 87, name: "佐野晶哉", group: "Aぇ! group", photo: "image/佐野晶哉.jpg" },
+        
+        // ABC-Z (4人)
+        { id: 90, name: "桥本良亮", group: "ABC-Z", photo: "image/桥本良亮.jpg" },
+        { id: 91, name: "户冢祥太", group: "ABC-Z", photo: "image/户塚祥太.jpg" },
+        { id: 93, name: "五关晃一", group: "ABC-Z", photo: "image/五关晃一.jpg" },
+        { id: 94, name: "冢田僚一", group: "ABC-Z", photo: "image/塚田僚一.jpg" },
+
+        // SUPER EIGHT (5人)
+        { id: 95, name: "村上信五", group: "SUPER EIGHT", photo: "image/村上信五.jpg" },
+        { id: 96, name: "丸山隆平", group: "SUPER EIGHT", photo: "image/丸山隆平.jpg" },
+        { id: 97, name: "横山裕", group: "SUPER EIGHT", photo: "image/横山裕.jpg" },
+        { id: 98, name: "安田章大", group: "SUPER EIGHT", photo: "image/安田章大.jpg" },
+        { id: 99, name: "大仓忠义", group: "SUPER EIGHT", photo: "image/大仓忠义.jpg" }
+    ];
+    
+    // ---------- 核心状态 ----------
+    let celebrities = new Map();
+    let totalVotes = 0;
+    const TARGET_VOTES = 100;
+    let leftId = null;
+    let rightId = null;
+    let processing = false;
+    
+    // DOM 元素
+    const leftCard = document.getElementById('leftCard');
+    const rightCard = document.getElementById('rightCard');
+    const leftImg = document.getElementById('leftImg');
+    const leftName = document.getElementById('leftName');
+    const leftGroupSpan = document.getElementById('leftGroup');
+    const leftEloSpan = document.getElementById('leftElo');
+    const rightImg = document.getElementById('rightImg');
+    const rightName = document.getElementById('rightName');
+    const rightGroupSpan = document.getElementById('rightGroup');
+    const rightEloSpan = document.getElementById('rightElo');
+    const voteCounterSpan = document.getElementById('voteCounter');
+    const progressFill = document.getElementById('progressFill');
+    const viewTop10Btn = document.getElementById('viewTop10Btn');
+    const resultPanel = document.getElementById('resultPanel');
+    const top10ListDiv = document.getElementById('top10List');
+    const resetGameBtn = document.getElementById('resetGameBtn');
+    const bothLikeBtn = document.getElementById('bothLikeBtn');
+    const bothDislikeBtn = document.getElementById('bothDislikeBtn');
+    const favoriteGroupDisplay = document.getElementById('favoriteGroupDisplay');
+    
+    // ---------- 辅助函数 ----------
+    function initMap() {
+        celebrities.clear();
+        ARTISTS_LIST.forEach(artist => {
+            celebrities.set(artist.id, {
+                id: artist.id,
+                name: artist.name,
+                group: artist.group,
+                photo: artist.photo,
+                elo: 1200,
+                wins: 0,
+                matches: 0
+            });
+        });
+    }
+    
+    function getRandomTwoIds() {
+        const ids = Array.from(celebrities.keys());
+        if (ids.length < 2) return [null, null];
+        let idx1 = Math.floor(Math.random() * ids.length);
+        let idx2 = Math.floor(Math.random() * ids.length);
+        while (idx1 === idx2) {
+            idx2 = Math.floor(Math.random() * ids.length);
+        }
+        return [ids[idx1], ids[idx2]];
+    }
+    
+    function updateCards() {
+        if (leftId && celebrities.has(leftId)) {
+            const left = celebrities.get(leftId);
+            leftImg.src = left.photo;
+            leftName.innerText = left.name;
+            leftGroupSpan.innerText = left.group;
+            leftEloSpan.innerText = `Elo ${Math.round(left.elo)}`;
+        }
+        if (rightId && celebrities.has(rightId)) {
+            const right = celebrities.get(rightId);
+            rightImg.src = right.photo;
+            rightName.innerText = right.name;
+            rightGroupSpan.innerText = right.group;
+            rightEloSpan.innerText = `Elo ${Math.round(right.elo)}`;
+        }
+    }
+    
+    function refreshMatch() {
+        const [newLeft, newRight] = getRandomTwoIds();
+        if (newLeft && newRight) {
+            leftId = newLeft;
+            rightId = newRight;
+            updateCards();
+        }
+    }
+    
+    function getExpected(rA, rB) {
+        return 1 / (1 + Math.pow(10, (rB - rA) / 400));
+    }
+    
+    function updateEloWin(winnerId, loserId) {
+        const winner = celebrities.get(winnerId);
+        const loser = celebrities.get(loserId);
+        const K = 32;
+        const expWin = getExpected(winner.elo, loser.elo);
+        const expLoss = getExpected(loser.elo, winner.elo);
+        winner.elo = winner.elo + K * (1 - expWin);
+        loser.elo = loser.elo + K * (0 - expLoss);
+        winner.elo = Math.min(2150, Math.max(750, winner.elo));
+        loser.elo = Math.min(2150, Math.max(750, loser.elo));
+        winner.matches++;
+        loser.matches++;
+        winner.wins++;
+    }
+    
+    function updateEloBothLike(idA, idB) {
+        const a = celebrities.get(idA);
+        const b = celebrities.get(idB);
+        const K = 32;
+        const virtualElo = 1200;
+        const expA = getExpected(a.elo, virtualElo);
+        const expB = getExpected(b.elo, virtualElo);
+        a.elo = a.elo + K * (1 - expA);
+        b.elo = b.elo + K * (1 - expB);
+        a.elo = Math.min(2150, Math.max(750, a.elo));
+        b.elo = Math.min(2150, Math.max(750, b.elo));
+        a.matches++;
+        b.matches++;
+    }
+    
+    function updateEloBothDislike() {
+        // 无变化
+    }
+    
+    function afterVote() {
+        totalVotes++;
+        voteCounterSpan.innerText = `${totalVotes} 次抉择`;
+        const percent = Math.min(100, (totalVotes / TARGET_VOTES) * 100);
+        progressFill.style.width = `${percent}%`;
+        refreshMatch();
+        
+        // 如果达到100次，自动结算（若尚未显示结果面板）
+        if (totalVotes === TARGET_VOTES && resultPanel.style.display !== 'block') {
+            showResult();
+        } else if (resultPanel.style.display === 'block') {
+            // 如果结果面板已经打开，实时更新排名
+            renderTop10AndFavorite();
+        }
+        
+        if (totalVotes === TARGET_VOTES) {
+            progressFill.style.background = "#f0a500";
+            setTimeout(() => { 
+                if(progressFill) progressFill.style.background = "linear-gradient(90deg, #da6e42, #b33f1a)"; 
+            }, 1000);
+        }
+        processing = false;
+    }
+    
+    function handleVote(winnerId, loserId) {
+        if (processing) return;
+        if (!winnerId || !loserId) return;
+        processing = true;
+        updateEloWin(winnerId, loserId);
+        afterVote();
+    }
+    
+    function handleBothLike() {
+        if (processing) return;
+        if (!leftId || !rightId) return;
+        processing = true;
+        updateEloBothLike(leftId, rightId);
+        afterVote();
+    }
+    
+    function handleBothDislike() {
+        if (processing) return;
+        if (!leftId || !rightId) return;
+        processing = true;
+        updateEloBothDislike();
+        afterVote();
+    }
+    
+    function getTop10() {
+        const all = Array.from(celebrities.values());
+        all.sort((a, b) => b.elo - a.elo);
+        return all.slice(0, 10);
+    }
+    
+    function inferFavoriteGroup(top10) {
+        if (top10.length === 0) return "暂无数据";
+        const groupCount = new Map();
+        for (const member of top10) {
+            const group = member.group;
+            if (!group) continue;
+            groupCount.set(group, (groupCount.get(group) || 0) + 1);
+        }
+        if (groupCount.size === 0) return "未识别";
+        let maxCount = 0;
+        let candidateGroups = [];
+        for (let [group, count] of groupCount.entries()) {
+            if (count > maxCount) {
+                maxCount = count;
+                candidateGroups = [group];
+            } else if (count === maxCount) {
+                candidateGroups.push(group);
+            }
+        }
+        if (candidateGroups.length === 1) return candidateGroups[0];
+        // 平局时选平均Elo最高的团体
+        let bestGroup = candidateGroups[0];
+        let bestAvgElo = 0;
+        for (const group of candidateGroups) {
+            const members = top10.filter(m => m.group === group);
+            const avgElo = members.reduce((sum, m) => sum + m.elo, 0) / members.length;
+            if (avgElo > bestAvgElo) {
+                bestAvgElo = avgElo;
+                bestGroup = group;
+            }
+        }
+        return bestGroup;
+    }
+    
+    function renderTop10AndFavorite() {
+        const top10 = getTop10();
+        if (!top10ListDiv) return;
+        if (top10.length === 0) {
+            top10ListDiv.innerHTML = '<div class="empty-rank">✨ 投票生成你的心动TOP10 ✨</div>';
+            favoriteGroupDisplay.innerText = "🏆 推算最爱团体：--";
+            return;
+        }
+        let html = '';
+        top10.forEach((star, idx) => {
+            const rank = idx + 1;
+            let medal = rank === 1 ? '🏆' : (rank === 2 ? '🥈' : (rank === 3 ? '🥉' : rank));
+            html += `
+                <div class="top10-item">
+                    <div class="top10-rank">${medal}</div>
+                    <img class="top10-img" src="${star.photo}" alt="${star.name}" onerror="this.src='https://picsum.photos/id/1/80/80'">
+                    <div class="top10-name">${star.name}</div>
+                    <div class="top10-group">${star.group || ''}</div>
+                    <div class="top10-elo">✨ ${Math.round(star.elo)}分</div>
+                </div>
+            `;
+        });
+        top10ListDiv.innerHTML = html;
+        const favGroup = inferFavoriteGroup(top10);
+        favoriteGroupDisplay.innerHTML = `🏆 根据你的TOP10推算，你的最爱团体是：<strong style="font-size:1.3rem;">${favGroup}</strong> 🏆`;
+    }
+    
+    function showResult() {
+        renderTop10AndFavorite();
+        resultPanel.style.display = 'block';
+        resultPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    function resetGame() {
+        if (processing) return;
+        initMap();
+        totalVotes = 0;
+        voteCounterSpan.innerText = `0 次抉择`;
+        progressFill.style.width = `0%`;
+        resultPanel.style.display = 'none';
+        refreshMatch();
+        progressFill.style.background = "linear-gradient(90deg, #da6e42, #b33f1a)";
+        processing = false;
+    }
+    
+    function bindEvents() {
+        leftCard.addEventListener('click', () => handleVote(leftId, rightId));
+        rightCard.addEventListener('click', () => handleVote(rightId, leftId));
+        bothLikeBtn.addEventListener('click', () => handleBothLike());
+        bothDislikeBtn.addEventListener('click', () => handleBothDislike());
+        viewTop10Btn.addEventListener('click', () => {
+            if (totalVotes === 0) {
+                alert("💖 请先进行至少一次心动抉择，再查看你的TOP10与最爱团 💖");
+                return;
+            }
+            showResult();
+        });
+        resetGameBtn.addEventListener('click', () => {
+            if (confirm('重置会清空所有心动记录，确定重新开始吗？')) {
+                resetGame();
+            }
+        });
+    }
+    
+    function init() {
+        initMap();
+        bindEvents();
+        const [firstLeft, firstRight] = getRandomTwoIds();
+        if (firstLeft && firstRight) {
+            leftId = firstLeft;
+            rightId = firstRight;
+            updateCards();
+        } else {
+            const ids = Array.from(celebrities.keys());
+            if (ids.length >= 2) {
+                leftId = ids[0];
+                rightId = ids[1];
+                updateCards();
+            }
+        }
+        resultPanel.style.display = 'none';
+        console.log("初始化完成，艺人数量:", celebrities.size);
+    }
+    
+    init();
+</script>
+</body>
+</html>
