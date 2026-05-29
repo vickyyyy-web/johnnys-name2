@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>杰尼斯二选一 · 心动男嘉宾</title>
+    <title>杰尼斯二选一 · 心动男嘉宾 · 智能频率版</title>
     <style>
         * {
             margin: 0;
@@ -344,6 +344,12 @@
             font-weight: 500;
         }
 
+        .weight-hint {
+            font-size: 0.7rem;
+            margin-top: 6px;
+            opacity: 0.8;
+        }
+
         footer {
             text-align: center;
             margin-top: 40px;
@@ -383,8 +389,8 @@
 <body>
 <div class="app-container">
     <div class="header">
-        <h1>💘 杰尼斯二选一 · 请选择你的心动男嘉宾 💘</h1>
-        <div class="sub">100次自动揭晓TOP10与预测最爱团+可提前交卷版</div>
+        <h1>💘 杰尼斯二选一 · 心动男嘉宾 💘</h1>
+        <div class="sub">✨ 100道选择后自动结算，也可以提前结算 ✨</div>
     </div>
 
     <div class="progress-area">
@@ -424,13 +430,11 @@
         <div class="favorite-group" id="favoriteGroupDisplay">🏆 推算最爱团体：--</div>
         <div id="top10List" class="top10-grid"></div>
     </div>
-    <footer>💡 都喜欢 → 双方各获得对虚拟对手的胜利加分 | 都不喜欢 → 分数不变 | 100次抉择后自动揭晓结果</footer>
+    <footer>💡 喜欢的人出现频率会变高，没点喜欢的频率降低 | 二选一 + 都喜欢/都不喜欢 都会动态调整出镜率 | 100次抉择自动揭晓</footer>
 </div>
 
 <script>
-    // ======================= 全Starto社艺人数据库 (删除福本大晴) =======================
-    // 总人数 85 位 (Aぇ! group 现为4人)
-    
+    // ======================= 全Starto社艺人数据库 (已删除福本大晴) =======================
     const ARTISTS_LIST = [
         // Hey! Say! JUMP (7人)
         { id: 1, name: "山田凉介", group: "Hey! Say! JUMP", photo: "image/山田凉介.png" },
@@ -557,8 +561,14 @@
         { id: 99, name: "大仓忠义", group: "SUPER EIGHT", photo: "image/大仓忠义.jpg" }
     ];
     
-    // ---------- 核心状态 ----------
-    let celebrities = new Map();
+    // ---------- 权重配置 (喜欢则频率↑，不喜欢则频率↓) ----------
+    const WEIGHT_INCREMENT = 0.22;      // 喜欢一个人增加的权重
+    const WEIGHT_DECREMENT = 0.18;      // 不喜欢(未被选或都讨厌)减少的权重
+    const MIN_WEIGHT = 0.35;            // 最低权重，避免完全消失
+    const MAX_WEIGHT = 3.2;             // 最高权重，防止过溢
+
+    // 核心状态
+    let celebrities = new Map();     // id -> {id, name, group, photo, elo, wins, matches, weight}
     let totalVotes = 0;
     const TARGET_VOTES = 100;
     let leftId = null;
@@ -597,20 +607,48 @@
                 photo: artist.photo,
                 elo: 1200,
                 wins: 0,
-                matches: 0
+                matches: 0,
+                weight: 1.0      // 初始权重均为1.0，平等出现频率
             });
         });
     }
     
-    function getRandomTwoIds() {
-        const ids = Array.from(celebrities.keys());
-        if (ids.length < 2) return [null, null];
-        let idx1 = Math.floor(Math.random() * ids.length);
-        let idx2 = Math.floor(Math.random() * ids.length);
-        while (idx1 === idx2) {
-            idx2 = Math.floor(Math.random() * ids.length);
+    // 调整单个艺人的权重 (delta可为正或负)
+    function adjustWeight(id, delta) {
+        if (!celebrities.has(id)) return;
+        const artist = celebrities.get(id);
+        let newWeight = artist.weight + delta;
+        if (newWeight > MAX_WEIGHT) newWeight = MAX_WEIGHT;
+        if (newWeight < MIN_WEIGHT) newWeight = MIN_WEIGHT;
+        artist.weight = newWeight;
+    }
+    
+    // 基于权重随机抽取一个艺人 (可排除指定id)
+    function getWeightedRandomId(excludeId = null) {
+        const available = [];
+        let totalWeight = 0;
+        for (let [id, artist] of celebrities.entries()) {
+            if (excludeId !== null && id === excludeId) continue;
+            totalWeight += artist.weight;
+            available.push({ id, weight: artist.weight });
         }
-        return [ids[idx1], ids[idx2]];
+        if (available.length === 0) return null;
+        let rand = Math.random() * totalWeight;
+        let accum = 0;
+        for (let item of available) {
+            accum += item.weight;
+            if (rand <= accum) return item.id;
+        }
+        return available[0].id;
+    }
+    
+    // 生成一对加权随机对决 (id1 !== id2)
+    function getWeightedRandomPair() {
+        const firstId = getWeightedRandomId(null);
+        if (!firstId) return [null, null];
+        const secondId = getWeightedRandomId(firstId);
+        if (!secondId) return [null, null];
+        return [firstId, secondId];
     }
     
     function updateCards() {
@@ -630,15 +668,28 @@
         }
     }
     
+    // 刷新对决 (使用权重随机)
     function refreshMatch() {
-        const [newLeft, newRight] = getRandomTwoIds();
+        const [newLeft, newRight] = getWeightedRandomPair();
         if (newLeft && newRight) {
             leftId = newLeft;
             rightId = newRight;
             updateCards();
+        } else {
+            // fallback: 随机取两个不同艺人
+            const ids = Array.from(celebrities.keys());
+            if (ids.length >= 2) {
+                let i1 = Math.floor(Math.random() * ids.length);
+                let i2 = Math.floor(Math.random() * ids.length);
+                while (i1 === i2) i2 = Math.floor(Math.random() * ids.length);
+                leftId = ids[i1];
+                rightId = ids[i2];
+                updateCards();
+            }
         }
     }
     
+    // ---------- ELO 相关 ----------
     function getExpected(rA, rB) {
         return 1 / (1 + Math.pow(10, (rB - rA) / 400));
     }
@@ -674,22 +725,21 @@
     }
     
     function updateEloBothDislike() {
-        // 无变化
+        // 分数无变化
     }
     
+    // ---------- 权重 + 记录 核心流程 ----------
     function afterVote() {
         totalVotes++;
         voteCounterSpan.innerText = `${totalVotes} 次抉择`;
         const percent = Math.min(100, (totalVotes / TARGET_VOTES) * 100);
         progressFill.style.width = `${percent}%`;
-        refreshMatch();
+        refreshMatch();    // 刷新下一组对局 (基于新的权重)
         
-        // 如果达到100次，自动结算（若尚未显示结果面板）
         if (totalVotes === TARGET_VOTES && resultPanel.style.display !== 'block') {
             showResult();
         } else if (resultPanel.style.display === 'block') {
-            // 如果结果面板已经打开，实时更新排名
-            renderTop10AndFavorite();
+            renderTop10AndFavorite();   // 实时更新排名和最爱团
         }
         
         if (totalVotes === TARGET_VOTES) {
@@ -701,27 +751,45 @@
         processing = false;
     }
     
+    // 处理单点击 (winner获胜，loser失利) + 权重调整：赢家频率↑ 输家频率↓
     function handleVote(winnerId, loserId) {
         if (processing) return;
         if (!winnerId || !loserId) return;
         processing = true;
+        
+        // 1. 权重调整：喜欢的人（赢家）频率提高，不喜欢的人（输家）频率降低
+        adjustWeight(winnerId, WEIGHT_INCREMENT);
+        adjustWeight(loserId, -WEIGHT_DECREMENT);
+        
+        // 2. ELO 更新
         updateEloWin(winnerId, loserId);
+        
         afterVote();
     }
     
+    // 两个都喜欢: 双方权重都增加，ELO均获得虚拟胜场加成
     function handleBothLike() {
         if (processing) return;
         if (!leftId || !rightId) return;
         processing = true;
+        
+        adjustWeight(leftId, WEIGHT_INCREMENT);
+        adjustWeight(rightId, WEIGHT_INCREMENT);
         updateEloBothLike(leftId, rightId);
+        
         afterVote();
     }
     
+    // 两个都不喜欢: 双方权重都降低, ELO不变
     function handleBothDislike() {
         if (processing) return;
         if (!leftId || !rightId) return;
         processing = true;
+        
+        adjustWeight(leftId, -WEIGHT_DECREMENT);
+        adjustWeight(rightId, -WEIGHT_DECREMENT);
         updateEloBothDislike();
+        
         afterVote();
     }
     
@@ -751,7 +819,6 @@
             }
         }
         if (candidateGroups.length === 1) return candidateGroups[0];
-        // 平局时选平均Elo最高的团体
         let bestGroup = candidateGroups[0];
         let bestAvgElo = 0;
         for (const group of candidateGroups) {
@@ -800,7 +867,7 @@
     
     function resetGame() {
         if (processing) return;
-        initMap();
+        initMap();          // 重置所有ELO + weight = 1.0
         totalVotes = 0;
         voteCounterSpan.innerText = `0 次抉择`;
         progressFill.style.width = `0%`;
@@ -823,7 +890,7 @@
             showResult();
         });
         resetGameBtn.addEventListener('click', () => {
-            if (confirm('重置会清空所有心动记录，确定重新开始吗？')) {
+            if (confirm('重置会清空所有心动记录以及频率记忆，确定重新开始吗？')) {
                 resetGame();
             }
         });
@@ -832,7 +899,7 @@
     function init() {
         initMap();
         bindEvents();
-        const [firstLeft, firstRight] = getRandomTwoIds();
+        const [firstLeft, firstRight] = getWeightedRandomPair();
         if (firstLeft && firstRight) {
             leftId = firstLeft;
             rightId = firstRight;
@@ -846,7 +913,7 @@
             }
         }
         resultPanel.style.display = 'none';
-        console.log("初始化完成，艺人数量:", celebrities.size);
+        console.log("✨ 智能频率版启动，艺人数量:", celebrities.size);
     }
     
     init();
